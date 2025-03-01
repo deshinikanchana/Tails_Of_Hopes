@@ -21,44 +21,52 @@ export default function PetDetails(){
             headerTransparent: true,
             headerTitle:' '
         })
-    })
+    },[navigation])
+
 
     const InitiateChat=async ()=>{
-        const docId1 = user?.primaryEmailAddress?.emailAddress+'_'+pet.email;
-        const docId2 = pet.email+'_'+user?.primaryEmailAddress?.emailAddress;
+        if (!pet?.email || !pet?.userName || !user?.primaryEmailAddress?.emailAddress) {
+            console.error("Incomplete data for chat initiation");
+            return;
+        }else{
+            const docId1 = user?.primaryEmailAddress?.emailAddress+'_'+pet.email;
+            const docId2 = pet.email+'_'+user?.primaryEmailAddress?.emailAddress;
 
-        const q=query(collection(db,'Chat'),where('id','in',[docId1,docId2]));
-        const querySnapShots = await getDocs(q);
 
-        querySnapShots.forEach(doc=>{
-            console.log(doc.data())
-            router.push({
-                pathname:'/Chat',
-                params:{id:doc.id}
+            const q=query(collection(db,'Chat'),where('id','in',[docId1,docId2]));
+            const querySnapShots = await getDocs(q);
+
+            querySnapShots.forEach(doc=>{
+                console.log(doc.data())
+                router.push({
+                    pathname:'/Chat',
+                    params:{id:doc.id}
+                })
             })
-        })
 
-        if (querySnapShots.docs?.length==0){
-            await setDoc(doc(db,'Chat',docId1),{
-                id:docId1,
-                users:[
-                    {
-                        email:user?.primaryEmailAddress?.emailAddress,
-                        imageUrl:user?.imageUrl,
-                        name:user?.fullName,
-                    },
-                    {
-                        email:pet?.email,
-                        imageUrl:pet?.userImage,
-                        name:pet?.userName,
+            if (querySnapShots.docs?.length==0){
+                await setDoc(doc(db,'Chat',docId1),{
+                    id:docId1,
+                    users:[
+                        {
+                            email:user?.primaryEmailAddress?.emailAddress,
+                            imageUrl:user?.imageUrl,
+                            name:user?.fullName,
+                        },
+                        {
+                            email:pet?.email,
+                            imageUrl:pet?.userImage,
+                            name:pet?.userName,
 
-                    }
-                ]
-            })
-            router.push({
-                pathname:'/Chat',
-                params:{id:docId1}
-            })
+                        }
+                    ],
+                    userIds:[user?.primaryEmailAddress?.emailAddress,pet?.email]
+                })
+                router.push({
+                    pathname:'/Chat',
+                    params:{id:docId1}
+                })
+            }
         }
     }
 
