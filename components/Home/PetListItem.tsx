@@ -1,15 +1,32 @@
-import {View,Text,Image} from "react-native";
-import Colors from "@/constants/Colors";
+import {View, Text, Image, TouchableOpacity} from "react-native";
+import Colors from "../../constants/Colors";
+import {useRouter} from "expo-router";
+import MarkFav from "../../components/MarkFav";
 
 export default function PetListItem({pet}){
+    const Router = useRouter();
     return(
-        <View style={{
+        <TouchableOpacity
+            onPress={()=>Router.push({
+                pathname:'/pet-details',
+                params:pet
+            })}
+
+            style={{
             padding:10,
             marginRight:15,
             backgroundColor:Colors.WHITE,
             borderRadius:10,
             marginTop:10
         }}>
+            <View style={{
+                position:'absolute',
+                zIndex:10,
+                right:10,
+                top:10
+            }}>
+                <MarkFav pet={pet}/>
+            </View>
                 <Image source={{uri:pet?.imageUrl}}
                 style={{
                     width:150,
@@ -33,6 +50,6 @@ export default function PetListItem({pet}){
             }}>{pet?.breed}</Text>
                 <Text>{pet?.age} Yrs</Text>
             </View>
-        </View>
+        </TouchableOpacity>
     )
 }
